@@ -86,23 +86,6 @@ func TaskIdFromArn(taskArn string) string {
 	return parts[len(parts)-1]
 }
 
-// Describes a single task from a cluster using the native `ecs:DescribeTasks` API.
-// The taskArn is the task of interest to be described
-func DescribeTask(ctx context.Context, ecsClientAPI EcsClientAPI, taskArn string) (types.Task, error) {
-	cluster := ClusterFromTaskArn(taskArn)
-	response, err := ecsClientAPI.DescribeTasks(ctx, &ecs.DescribeTasksInput{
-		Tasks:   []string{taskArn},
-		Cluster: &cluster,
-	})
-
-	if err != nil {
-		return types.Task{}, err
-	}
-
-	// Given the input of `DescribeTasks` we should only be getting one Task back
-	return response.Tasks[0], nil
-}
-
 // Acquires LogStream details for given ECS Task
 func FindLogStreamFromTask(ctx context.Context, ecsClientApi EcsClientAPI, task types.Task) (LogDetails, error) {
 	response, err := ecsClientApi.DescribeTaskDefinition(ctx, &ecs.DescribeTaskDefinitionInput{
