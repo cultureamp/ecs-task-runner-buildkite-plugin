@@ -15,7 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 )
 
-type ExamplePlugin struct {
+type TaskRunnerPlugin struct {
 }
 
 type ConfigFetcher interface {
@@ -26,7 +26,7 @@ type Agent interface {
 	Annotate(ctx context.Context, message string, style string, annotationContext string) error
 }
 
-func (ep ExamplePlugin) Run(ctx context.Context, fetcher ConfigFetcher, agent Agent) error {
+func (trp TaskRunnerPlugin) Run(ctx context.Context, fetcher ConfigFetcher, agent Agent) error {
 	var config Config
 	err := fetcher.Fetch(&config)
 	if err != nil {
