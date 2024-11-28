@@ -61,3 +61,7 @@ linters-settings:
         mode: strict
   cyclop:
     max-complexity: 20
+  depguard:
+    rules:
+      default:
+        list-mode: lax # all packages are allowed, unless explicitly denied
