@@ -15,7 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ssm"
 )
 
-type ExamplePlugin struct {
+type TaskRunnerPlugin struct {
 }
 
 type ConfigFetcher interface {
@@ -26,7 +26,7 @@ type Agent interface {
 	Annotate(ctx context.Context, message string, style string, annotationContext string) error
 }
 
-func (ep ExamplePlugin) Run(ctx context.Context, fetcher ConfigFetcher, agent Agent) error {
+func (trp TaskRunnerPlugin) Run(ctx context.Context, fetcher ConfigFetcher, agent Agent) error {
 	var config Config
 	err := fetcher.Fetch(&config)
 	if err != nil {
@@ -70,17 +70,14 @@ func (ep ExamplePlugin) Run(ctx context.Context, fetcher ConfigFetcher, agent Ag
 		log.Fatalf("Failed to submit task: %v", err)
 	}
 
-	//TODO: later down the road, we need to check if a task completed successfully. i.e. it returns a SUCCESS state.
-	// In the murmur implementation, this was done by checking the result of the waiter. Our waiter doesn't include
-	// this information. So we may need to look at another way
-
 	waiterClient := ecs.NewTasksStoppedWaiter(ecsClient, func(o *ecs.TasksStoppedWaiterOptions) {
 		o.MinDelay = time.Second
-		o.MaxDelay = 10 * time.Second
+		// TODO: This is currently a magic number. If we want this to be configurable, remove the nolint directive and fix it up
+		o.MaxDelay = 10 * time.Second //nolint:mnd
 	})
 	result, err := awsinternal.WaitForCompletion(ctx, waiterClient, taskArn)
 	if err != nil {
-		// TODO: Do we wanna wanna go from fatal, to print, and provide an opportunity to share logs from the task if there any?
+		// TODO: Do we wanna go from fatal, to print, and provide an opportunity to share logs from the task if there any?
 		// That, or we include the log sharing logic within this condition
 		log.Printf("error waiting for task completion: %v", err)
 		log.Fatalf("failure information: %v", result.Failures[0])
@@ -123,5 +120,4 @@ func (ep ExamplePlugin) Run(ctx context.Context, fetcher ConfigFetcher, agent Ag
 
 	buildkite.Log("done.")
 	return nil
-
 }
