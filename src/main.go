@@ -4,15 +4,15 @@ import (
 	"context"
 	"os"
 
-	"github.com/cultureamp/examplego/buildkite"
-	"github.com/cultureamp/examplego/plugin"
+	"ecs-task-runner/buildkite"
+	"ecs-task-runner/plugin"
 )
 
 func main() {
 	ctx := context.Background()
 	agent := &buildkite.Agent{}
-	fetcher := plugin.EnvironmentConfigFetcher{}
-	examplePlugin := plugin.ExamplePlugin{}
+	fetcher := plugin.EnvironmentConfigFetcher{} //TODO: Is this the BK-specific env-vars fetcher?
+	examplePlugin := plugin.TaskRunnerPlugin{}
 
 	err := examplePlugin.Run(ctx, fetcher, agent)
 
