@@ -43,7 +43,9 @@ func (trp TaskRunnerPlugin) Run(ctx context.Context, fetcher ConfigFetcher) erro
 		return fmt.Errorf("failed to retrieve configuration: %w", err)
 	}
 
-	configuration.Command = strings.Split(config.Command, " ")
+	if config.Command != "" {
+		configuration.Command = strings.Split(config.Command, " ")
+	}
 
 	ecsClient := ecs.NewFromConfig(cfg)
 	taskArn, err := awsinternal.SubmitTask(ctx, ecsClient, configuration)

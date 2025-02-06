@@ -30,6 +30,7 @@ func SubmitTask(ctx context.Context, ecsAPI EcsClientAPI, input *TaskRunnerConfi
 		Cluster:    &input.Cluster,
 		LaunchType: "FARGATE",
 		Overrides: &types.TaskOverride{
+			// FIXME: A panic is occurring. Possibly because the command is literally "" as opposed to be truly null so the native CMD directive is used instead.
 			ContainerOverrides: containerOverrides,
 		},
 		TaskDefinition: &input.TaskDefinitionArn,
@@ -78,6 +79,7 @@ func WaitForCompletion(ctx context.Context, waiter ecsWaiterAPI, taskArn string)
 
 func ContainerOverrideForConfig(input *TaskRunnerConfiguration) []types.ContainerOverride {
 	if len(input.Command) == 0 {
+		fmt.Println("No command provided, using default container command")
 		return []types.ContainerOverride{
 			{
 				Name: aws.String("migrations-runner"),
@@ -85,6 +87,7 @@ func ContainerOverrideForConfig(input *TaskRunnerConfiguration) []types.Containe
 		}
 	}
 
+	fmt.Println("command provided, extending container command")
 	return []types.ContainerOverride{
 		{
 			Name:    aws.String("migrations-runner"),
